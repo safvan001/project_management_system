@@ -8,36 +8,33 @@ from .tasks import send_notification_email
 
 @receiver(post_save, sender=Task)
 def create_task_notification(sender, instance, created, **kwargs):
+    """
+    Signal handler to create a notification when a Task is created.
+
+    Parameters:
+    - sender: The model class that triggered the signal (Task).
+    - instance: The actual instance of the Task model that was saved.
+    - created: A boolean indicating whether a new instance was created (True) or an existing instance was updated (False).
+    - **kwargs: Additional keyword arguments passed by the signal.
+
+    When a Task is created, this function creates a Notification for the user to whom the task is assigned.
+    """
     if created:
         Notification.objects.create(user=instance.assigned_to, message=f'New task assigned: {instance.name}')
 
 @receiver(post_save, sender=Milestone)
 def create_milestone_notification(sender, instance, created, **kwargs):
+    """
+    Signal handler to create a notification when a Milestone is created.
+
+    Parameters:
+    - sender: The model class that triggered the signal (Milestone).
+    - instance: The actual instance of the Milestone model that was saved.
+    - created: A boolean indicating whether a new instance was created (True) or an existing instance was updated (False).
+    - **kwargs: Additional keyword arguments passed by the signal.
+
+    When a Milestone is created, this function creates a Notification for the owner of the project to which the milestone belongs.
+    """
     if created:
         Notification.objects.create(user=instance.project.owner, message=f'New milestone created: {instance.name}')
 
-# @receiver(post_save, sender=Task)
-# def task_post_save(sender, instance, created, **kwargs):
-#     if created:
-#         send_notification_email.delay(
-#             instance.assigned_to.email,
-#             f'New task "{instance.name}" has been assigned to you.'
-#         )
-#     else:
-#         send_notification_email.delay(
-#             instance.assigned_to.email,
-#             f'Task "{instance.name}" has been updated.'
-#         )
-
-# @receiver(post_save, sender=Milestone)
-# def milestone_post_save(sender, instance, created, **kwargs):
-#     if created:
-#         send_notification_email.delay(
-#             instance.project.manager.email,
-#             f'New milestone "{instance.name}" has been created for project "{instance.project.name}".'
-#         )
-#     else:
-#         send_notification_email.delay(
-#             instance.project.manager.email,
-#             f'Milestone "{instance.name}" for project "{instance.project.name}" has been updated.'
-#         )

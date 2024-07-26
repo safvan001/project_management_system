@@ -16,11 +16,21 @@ from management.tasks import send_notification_email
 User=get_user_model()
 
 class UserSignUp(generics.CreateAPIView):
+    """
+    View to handle user sign-up.
+    Allows any user to sign Up.
+
+    """
     queryset=User.objects.all()
     serializer_class=UserSerializer
     permission_classes=[AllowAny]
 
 class LoginView(APIView):
+    """
+    View to handle user login.
+    Authenticates user and provides JWT tokens.
+
+    """
     def post(self,request):
         username=request.data.get('username')
         password=request.data.get('password')
@@ -43,6 +53,11 @@ class LoginView(APIView):
             return Response({'detail': 'Invalid username or password.'}, status=status.HTTP_401_UNAUTHORIZED)
 
 class ProjectListCreateAPIView(APIView):
+    """
+    View to list and create projects.
+    Only admins and managers can create projects.
+
+    """
     permission_classes = [IsAdminOrManagerOrReadOnly]
     @method_decorator(cache_page(60*2))  # Cache for 2 minutes
     def get(self, request):
@@ -53,11 +68,20 @@ class ProjectListCreateAPIView(APIView):
     def post(self, request):
         serializer = ProjectSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            project=serializer.save()
+            send_notification_email.delay(
+                project.owner.email,
+                f'New project "{project.name}" has been created.'
+            )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ProjectDetailAPIView(APIView):
+    """
+    View to retrieve, update, or delete a project.
+    Only admins and managers can update or delete projects.
+
+    """
     permission_classes = [IsAdminOrManagerOrReadOnly]
     def get_object(self, pk):
         return get_object_or_404(Project, pk=pk)
@@ -71,7 +95,11 @@ class ProjectDetailAPIView(APIView):
         project = self.get_object(pk)
         serializer = ProjectSerializer(project, data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            project=serializer.save()
+            send_notification_email.delay(
+                project.owner.email,
+                f'New project "{project.name}" has been created.'
+            )
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -81,6 +109,10 @@ class ProjectDetailAPIView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class TaskListCreateAPIView(APIView):
+    """
+    View to list and create tasks.
+    Only admins and managers can create tasks.
+    """
     permission_classes = [IsAdminOrManager]
 
     @method_decorator(cache_page(60*2))  # Cache for 2 minutes
@@ -101,6 +133,10 @@ class TaskListCreateAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class TaskDetailAPIView(APIView):
+    """
+    View to retrieve, update, or delete a task.
+    Only admins and managers can update or delete tasks.
+    """
     permission_classes = [IsAdminOrManager]
 
     def get_object(self, pk):
@@ -129,6 +165,10 @@ class TaskDetailAPIView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class MilestoneListCreateAPIView(APIView):
+    """
+    View to list and create milestones.
+    Only admins and managers can create milestones.
+    """
     permission_classes = [IsAdminOrManagerOrReadOnly]
 
     @method_decorator(cache_page(60*2))  # Cache for 2 minutes
@@ -149,6 +189,10 @@ class MilestoneListCreateAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class MilestoneDetailAPIView(APIView):
+    """
+    View to retrieve, update, or delete a milestone.
+    Only admins and managers can update or delete milestones.
+    """
     permission_classes = [IsAdminOrManagerOrReadOnly]
 
     def get_object(self, pk):

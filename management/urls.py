@@ -20,13 +20,22 @@ from .views import *
 
 
 urlpatterns = [
+     # User sign-up endpoint
     path('SignUp/',UserSignUp.as_view(),name='signup'),
+     # User login endpoint
     path('login/',LoginView.as_view(),name='login'),
+    # Endpoint for listing and creating projects
     path('projects/', ProjectListCreateAPIView.as_view(), name='project-list-create'),
+    # Endpoint for retrieving, updating, and deleting a specific project by its ID
     path('projects/<int:pk>/', ProjectDetailAPIView.as_view(), name='project-detail'),
+    # Endpoint for listing and creating task
     path('tasks/', TaskListCreateAPIView.as_view(), name='task-list-create'),
+    # Endpoint for retrieving, updating, and deleting a specific task by its ID
     path('tasks/<int:pk>/', TaskDetailAPIView.as_view(), name='task-detail'),
+    # Endpoint for listing and creating milestones
     path('milestones/', MilestoneListCreateAPIView.as_view(), name='milestone-list-create'),
+    # Endpoint for retrieving, updating, and deleting a specific milestone by its ID
     path('milestones/<int:pk>/', MilestoneDetailAPIView.as_view(), name='milestone-detail'),
+    # Endpoint for listing and creating notifications
     path('notifications/', NotificationListCreateAPIView.as_view(), name='notification-list-create'),
 ]

@@ -1,0 +1,19 @@
+# Ignore Python bytecode
+*.pyc
+*.pyo
+__pycache__/
+
+# Ignore virtual environment
+env/
+venv/
+
+# Ignore Django migrations
+*/migrations/
+
+
+# Ignore logs
+*.log
+
+# Ignore environment configuration files
+.env
+
